@@ -3,7 +3,8 @@ ENV NODE_ENV=production
 
 COPY .docker /
 RUN echo "Install build dependencies." && set -xe \
-    && apk --no-cache add --virtual builds-deps build-base python openssl \
+    && apk --no-cache add --virtual builds-deps build-base python \
+    && apk --no-cache add openssl \
     && chmod 0755 /usr/local/bin/* \
     && rm -f /usr/local/src/* \
     && rm -rf /var/cache/apk \

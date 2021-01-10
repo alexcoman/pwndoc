@@ -7,12 +7,12 @@ COPY . .
 RUN npm run build
 
 ### STAGE 2: Run ###
-FROM nginx:stable-alpine
+FROM nginx:alpine
 
 COPY .docker /
 COPY --from=build /app/dist/spa /var/www/html/pwndoc
 RUN echo "Install dependencies and fix permissions." && set -xe \
-    && apk --no-cache add --virtual openssl \
+    && apk --no-cache add openssl \
     && chown -R nginx:nginx /var/www/html \
     && chmod 0755 /usr/local/bin/* \
     && rm -f /etc/nginx/default.conf \

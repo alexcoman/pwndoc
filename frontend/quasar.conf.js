@@ -43,15 +43,6 @@ module.exports = function (ctx) {
           API_PORT: 443,
         }
     },
-    devServer: {
-      https: {
-        key: fs.readFileSync(__dirname+'/ssl/server.key'),
-        cert: fs.readFileSync(__dirname+'/ssl/server.cert')
-      },
-      host: "127.0.0.1",
-      port: 8081,
-      //open: true // opens browser window automatically
-    },
     // framework: 'all' --- includes everything; for dev only!
     framework: {
       components: [

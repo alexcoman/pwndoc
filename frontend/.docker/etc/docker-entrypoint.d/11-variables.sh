@@ -12,13 +12,8 @@ export HTTPS_PORT=${PORT:-8443}
 # container (normally should be a volume).
 export CERT_DIR=${CERT_DIR:-/certs}
 
-# TLS_CA_FILE is the absolute path to the local CA
-export TLS_CA_FILE=${TLS_CA_FILE:-/certs/ca/cert.pem}
+# SSL_CERT_FILE is the absolute path to the certificate file
+export SSL_CERT_FILE=${SSL_CERT_FILE:-/certs/frontend/cert.pem}
 
-# TLS_CERT_FILE is the absolute path to the certificate file
-export TLS_CERT_FILE=${TLS_CERT_FILE:-/certs/frontend/cert.pem}
-
-# TLS_KEY_FILE is the absolute path to the key file
-export TLS_KEY_FILE=${TLS_KEY_FILE:-/certs/frontend/key.pem}
-
-
+# SSL_KEY_FILE is the absolute path to the key file
+export SSL_KEY_FILE=${SSL_KEY_FILE:-/certs/frontend/key.pem}

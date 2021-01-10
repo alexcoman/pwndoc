@@ -1,16 +1,14 @@
 // Web server configutation
 const server_host = process.env.HOST
 const server_port = process.env.PORT
-const server_cert_path = process.env.TLS_CERT_FILE
-const server_key_path = process.env.TLS_KEY_FILE
-const server_ca_file = process.env.TLS_CA_FILE
+const server_cert_path = process.env.SSL_CERT_FILE
+const server_key_path = process.env.SSL_KEY_FILE
 
 var fs = require('fs');
 var app = require('express')();
 var https = require('https').Server({
   key: fs.readFileSync(server_key_path, 'utf8'),
   cert: fs.readFileSync(server_cert_path, 'utf8'),
-  ca: [fs.readFileSync(server_ca_file, 'utf8')]
 }, app);
 var io = require('socket.io')(https);
 var bodyParser = require('body-parser');
