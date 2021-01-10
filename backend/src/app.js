@@ -1,23 +1,30 @@
+// Web server configutation
+const server_host = process.env.HOST
+const server_port = process.env.PORT
+const server_cert_path = process.env.TLS_CERT_FILE
+const server_key_path = process.env.TLS_KEY_FILE
+const server_ca_file = process.env.TLS_CA_FILE
+
 var fs = require('fs');
 var app = require('express')();
 var https = require('https').Server({
-  key: fs.readFileSync(__dirname+'/../ssl/server.key'),
-  cert: fs.readFileSync(__dirname+'/../ssl/server.cert')
+  key: fs.readFileSync(server_key_path, 'utf8'),
+  cert: fs.readFileSync(server_cert_path, 'utf8'),
+  ca: [fs.readFileSync(server_ca_file, 'utf8')]
 }, app);
 var io = require('socket.io')(https);
 var bodyParser = require('body-parser');
 
-// Get configuration
-var env = process.env.NODE_ENV || 'dev';
-var config = require('./config.json')[env];
 global.__basedir = __dirname;
 
 // Database connection
 var mongoose = require('mongoose');
+const db_host = process.env.DB_HOST;
+const db_port = process.env.DB_PORT;
+const db_name = process.env.DB_NAME;
 // Use native promises
 mongoose.Promise = global.Promise;
-
-mongoose.connect(`mongodb://${config.database.server}:${config.database.port}/${config.database.name}`, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false});
+mongoose.connect(`mongodb://${db_host}:${db_port}/${db_name}`, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false});
 
 // Models import
 require('./models/user');
@@ -61,8 +68,8 @@ io.on('connection', (socket) => {
       user.username = s.username;
       user.color = s.color;
       user.menu = s.menu;
-      if (s.finding) user.finding = s.finding; 
-      if (s.section) user.section = s.section; 
+      if (s.finding) user.finding = s.finding;
+      if (s.section) user.section = s.section;
       return user;
     }))];
     io.to(data.room).emit('roomUsers', userList);
@@ -108,7 +115,5 @@ app.get("*", function(req, res) {
 })
 
 // Start server
-
-https.listen(config.port, config.host)
-
+https.listen(server_port, server_host)
 module.exports = app;
