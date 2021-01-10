@@ -1,0 +1,95 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo
+    volumes:
+      - ./data/mongo:/data/db
+    environment:
+      - MONGO_DB:pwndoc
+    networks:
+      - pwndoc-network
+
+  pwndoc-backend:
+    build: ./backend
+    image: yeln4ts/pwndoc:backend
+    container_name: pwndoc-backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pwndoc-backend-http.rule=host(`api.pwndoc.local`)"
+      - "traefik.http.routers.pwndoc-backend-http.entrypoints=web"
+      - "traefik.http.routers.pwndoc-backend-http.middlewares=redirect"
+      - "traefik.http.middlewares.redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect.redirectscheme.permanent=true"
+      - "traefik.http.routers.pwndoc-backend-https.rule=Host(`pwndoc.local`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))"
+      - "traefik.http.routers.pwndoc-backend-https.entrypoints=web-secure"
+      - "traefik.http.routers.pwndoc-backend-https.tls=true"
+      - "traefik.http.services.pwndoc-backend.loadBalancer.server.port=4242"
+      - "traefik.http.services.pwndoc-backend.loadBalancer.server.scheme=https"
+      - "traefik.http.services.pwndoc-backend.loadbalancer.passhostheader=true"
+      # - "traefik.http.routers.pwndoc-backend-https.tls.certresolver=letsencrypt"
+    volumes:
+      - ./data/certs:/certs
+      - ./backend/report-templates:/home/node/app/report-templates
+    depends_on:
+      - mongodb
+    restart: always
+    links:
+      - mongodb
+    networks:
+      - pwndoc-network
+
+  pwndoc-frontend:
+    image: yeln4ts/pwndoc:frontend
+    container_name: pwndoc-frontend
+    build: ./frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pwndoc-frontend-http.rule=host(`pwndoc.local`)"
+      - "traefik.http.routers.pwndoc-frontend-http.entrypoints=web"
+      - "traefik.http.routers.pwndoc-frontend-http.middlewares=redirect"
+      - "traefik.http.middlewares.redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect.redirectscheme.permanent=true"
+      - "traefik.http.routers.pwndoc-frontend-https.rule=Host(`pwndoc.local`)"
+      - "traefik.http.routers.pwndoc-frontend-https.entrypoints=web-secure"
+      - "traefik.http.routers.pwndoc-frontend-https.tls=true"
+      - "traefik.http.services.pwndoc-frontend.loadBalancer.server.port=8443"
+      - "traefik.http.services.pwndoc-frontend.loadBalancer.server.scheme=https"
+      - "traefik.http.services.pwndoc-frontend.loadbalancer.passhostheader=true"
+      # - "traefik.http.routers.pwndoc-frontend-https.tls.certresolver=letsencrypt"
+    depends_on:
+      - pwndoc-backend
+    restart: always
+    volumes:
+      - ./data/certs:/certs
+    networks:
+      - pwndoc-network
+
+  traefik:
+    image: "traefik:v2.3"
+    container_name: "traefik"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entryPoints.web-secure.address=:443"
+      - "--serverstransport.insecureskipverify=true"
+      # - --serverstransport.rootcas=/certs/ca/cert.pem
+      # - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      # - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      # - "--certificatesresolvers.letsencrypt.acme.email=postmaster@example.com"
+      # - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - pwndoc-frontend
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # - "./letsencrypt:/letsencrypt"
+    networks:
+      - pwndoc-network
+
+networks:
+  pwndoc-network:
+      driver: bridge
