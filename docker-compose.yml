@@ -34,6 +34,8 @@ services:
     image: yeln4ts/pwndoc:frontend
     container_name: pwndoc-frontend
     restart: always
+    volumes:
+      - ./data/certs:/certs
     ports:
       - 8443:8443
     networks:
