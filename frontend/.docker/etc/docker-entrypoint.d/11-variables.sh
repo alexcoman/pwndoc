@@ -2,6 +2,12 @@
 
 # Web Server Configuration
 
+# API_HOST is the IP address on which the Pwndoc backend binds to.
+export API_HOST=${API_HOST:-pwndoc-backend}
+
+# API_PORT is refering to the port on which the Pwndoc backend listen.
+export API_PORT=${API_PORT:-4242}
+
 # HTTP_PORT is the port used by nginx for HTTP connections
 export HTTP_PORT=${PORT:-8080}
 

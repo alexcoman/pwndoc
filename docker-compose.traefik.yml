@@ -13,30 +13,6 @@ services:
     build: ./backend
     image: yeln4ts/pwndoc:backend
     container_name: pwndoc-backend
-    labels:
-      # General Configuration
-      - "traefik.enable=true"
-      # - "traefik.http.routers.pwndoc-backend-https.tls.certresolver=letsencrypt"
-      # HTTP Configuration
-      - "traefik.http.routers.pwndoc-backend-http.rule=host(`api.pwndoc.local`)"
-      - "traefik.http.routers.pwndoc-backend-http.entrypoints=web"
-      - "traefik.http.routers.pwndoc-backend-http.middlewares=redirect"
-      - "traefik.http.middlewares.redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.redirect.redirectscheme.permanent=true"
-      # HTTPS Configuration
-      - "traefik.http.routers.pwndoc-backend-https.rule=Host(`pwndoc.local`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.pwndoc-backend-https.entrypoints=web-secure"
-      - "traefik.http.routers.pwndoc-backend-https.tls=true"
-      - "traefik.http.services.pwndoc-backend.loadBalancer.server.port=4242"
-      - "traefik.http.services.pwndoc-backend.loadBalancer.server.scheme=https"
-      - "traefik.http.services.pwndoc-backend.loadbalancer.passhostheader=true"
-      # WSS Configuration
-      - "traefik.http.routers.socket-io.rule=Host(`pwndoc.local`) && PathPrefix(`/socket.io`)"
-      - "traefik.http.routers.socket-io.entrypoints=wss"
-      - "traefik.http.services.socket-io.loadBalancer.server.port=4242"
-      - "traefik.http.services.socket-io.loadBalancer.server.scheme=wss"
-      - "traefik.http.services.socket-io.loadbalancer.passhostheader=true"
-        
     volumes:
       - ./data/certs:/certs
       - ./backend/report-templates:/home/node/app/report-templates
